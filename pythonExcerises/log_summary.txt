@@ -1,0 +1,14 @@
+Summary:
+Log Level: INFO
+Timestamp: 2024-05-19 15:23:44 - Message: Data fetched successfully
+Timestamp: 2024-05-19 15:23:47 - Message: User login successful
+Total Entries: 2
+
+Log Level: WARNING
+Timestamp: 2024-05-19 15:23:45 - Message: Low disk space
+Total Entries: 1
+
+Log Level: ERROR
+Timestamp: 2024-05-19 15:23:46 - Message: Failed to connect to database
+Total Entries: 1
+
