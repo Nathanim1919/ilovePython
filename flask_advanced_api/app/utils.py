@@ -8,7 +8,9 @@ def role_required(role):
         @wraps(fn)
         def decorator(*args, **kwargs):
             current_user = get_jwt_identity()
+            print(f"Current user role: {current_user['role']}")  # Debugging
             if current_user['role'] != role:
+                print(f"Unauthorized access: {current_user['role']}")
                 return {'message': "Unauthorized access"}, 403
             return fn(*args, **kwargs)
         return decorator
