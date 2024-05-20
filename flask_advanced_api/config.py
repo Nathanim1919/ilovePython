@@ -1,3 +1,4 @@
+from datetime import timedelta
 import os
 
 """
@@ -19,6 +20,8 @@ class Config:
     SQLALCHEMY_DATABASE_URI = os.environ.get('DATABASE_URL') or 'sqlite:///app.db'
     SQLALCHEMY_TRACK_MODIFICATIONS = False
     JWT_SECRET_KEY = os.environ.get('JWT_SECRET') or 'super-secret'
+    JWT_ACCESS_TOKEN_EXPIRES = timedelta(minutes=15) # Access token expires in 15 minutes
+    JWT_REFRESH_TOKEN_EXPIRES = timedelta(days=30) # Refresh token expires in 30 days
     MAIL_SERVER = 'smtp.googlemail.com'
     MAIL_PORT = 587
     MAIL_USE_TLS = True

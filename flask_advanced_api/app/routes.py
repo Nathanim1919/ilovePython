@@ -3,10 +3,14 @@ from random import randint
 from flask import Blueprint, jsonify, request
 from app import db, jwt, mail, limiter
 from app.model import User, Task
-from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask_mail import Message
 import pyotp
 from app.utils import role_required
+from flask_jwt_extended import (
+    jwt_required, create_access_token, get_jwt_identity,create_refresh_token
+)
+
+from werkzeug.security import generate_password_hash, check_password_hash
 
 # Create the routes blueprint
 bp = Blueprint('routes', __name__)
@@ -44,8 +48,16 @@ def login():
         return jsonify({'message': "Invalid credentials"}), 401
     
     access_token = create_access_token(identity={'username':user.username, 'role': user.role, 'id': user.id})
-    return jsonify({'access_token': access_token}), 200
+    refresh_token = create_refresh_token(identity={'username':user.username, 'role': user.role, 'id': user.id})
+    return jsonify({'access_token': access_token, "refresh_token": refresh_token}), 200
 
+
+@bp.route('/refresh', methods=['POST'])
+@jwt_required(refresh=True)
+def refresh():
+    current_user = get_jwt_identity()
+    access_token = create_access_token(identity=current_user)
+    return jsonify({'access_token': access_token}), 200
 
 @bp.route('/tasks', methods=['GET'])
 @jwt_required()

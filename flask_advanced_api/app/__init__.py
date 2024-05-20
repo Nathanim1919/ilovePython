@@ -63,6 +63,7 @@ def create_app():
 
     # Import the blueprints
     from app import routes
+    csrf.exempt(routes.bp) 
     app.register_blueprint(routes.bp)
 
 
