@@ -1,7 +1,7 @@
 from crypt import methods
 from random import randint
-from flask import Blueprint, jsonify, request
-from app import db, jwt, mail, limiter
+from flask import Blueprint, current_app, jsonify, request
+from app import db, jwt, mail, limiter, logging
 from app.model import User, Task
 from flask_mail import Message
 import pyotp
@@ -55,9 +55,11 @@ def login():
 @bp.route('/refresh', methods=['POST'])
 @jwt_required(refresh=True)
 def refresh():
+    current_app.logger.info("---------------Refresh token used--------------")
     current_user = get_jwt_identity()
     access_token = create_access_token(identity=current_user)
     return jsonify({'access_token': access_token}), 200
+
 
 @bp.route('/tasks', methods=['GET'])
 @jwt_required()

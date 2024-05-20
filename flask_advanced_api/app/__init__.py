@@ -1,3 +1,4 @@
+import os
 from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
@@ -7,6 +8,8 @@ from flask_jwt_extended import JWTManager
 from flask_mail import Mail
 from flask_limiter import Limiter
 from flask_limiter.util import get_remote_address
+import logging
+from logging.handlers import RotatingFileHandler
 
 # Flask-Limiter can help rate-limit API requests to protect against abuse.
 limiter = Limiter(
@@ -59,6 +62,21 @@ def create_app():
 
     # Initialize the limiter object
     limiter.init_app(app)
+
+    # Create the logs directory if it does not exist
+    if not app.debug:
+        if not os.path.exists('logs'):
+            os.mkdir('logs')
+            
+        # Create a rotating file handler to log the errors
+        file_handler = RotatingFileHandler('logs/flask_advanced_api.log', maxBytes=10240, backupCount=10)
+        file_handler.setFormatter(logging.Formatter(
+            '%(asctime)s %(levelname)s: %(message)s [in %(pathname)s:%(lineno)d]'
+        ))
+        file_handler.setLevel(logging.INFO)
+        app.logger.addHandler(file_handler)
+        app.logger.setLevel(logging.INFO)
+        app.logger.info('Flask Advanced API startup')
 
 
     # Import the blueprints
