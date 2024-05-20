@@ -1,7 +1,7 @@
 from crypt import methods
 from random import randint
 from flask import Blueprint, jsonify, request
-from app import db, jwt, mail
+from app import db, jwt, mail, limiter
 from app.model import User, Task
 from flask_jwt_extended import create_access_token, jwt_required, get_jwt_identity
 from flask_mail import Message
@@ -32,6 +32,7 @@ def register():
 
 
 @bp.route('/login', methods=['POST'])
+@limiter.limit('5 per minute') # Stricter limit for login to prevent brute force attacks
 def login():
     data = request.get_json()
     if not data or not data.get('username') or not data.get('password'):
@@ -56,7 +57,8 @@ def get_tasks():
 
 @bp.route('/tasks', methods=['POST'])
 @jwt_required()
-@role_required('admin')
+@role_required('user')
+@limiter.limit('10 per minute')
 def create_task():
     user = get_jwt_identity()
     data = request.get_json()

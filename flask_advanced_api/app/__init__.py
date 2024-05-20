@@ -2,9 +2,19 @@ from flask import Flask
 from config import Config
 from flask_sqlalchemy import SQLAlchemy
 from flask_migrate import Migrate
-# from flask_wtf_extended import CSRFProtect
+from flask_wtf import CSRFProtect
 from flask_jwt_extended import JWTManager
 from flask_mail import Mail
+from flask_limiter import Limiter
+from flask_limiter.util import get_remote_address
+
+# Flask-Limiter can help rate-limit API requests to protect against abuse.
+limiter = Limiter(
+    get_remote_address,
+    app=None,
+    default_limits=["200 per day", "50 per hour"]
+)
+
 
 
 # Create the database object
@@ -14,7 +24,7 @@ db = SQLAlchemy()
 migrate = Migrate()
 
 # Create the CSRF object
-# csrf  = CSRFProtect()
+csrf  = CSRFProtect()
 
 
 # Create the JWT object
@@ -38,13 +48,17 @@ def create_app():
     migrate.init_app(app, db)
 
     # Initialize the CSRF object
-    # csrf.init_app(app)
+    # This will automatically protect all forms and requests in your application. Make sure your forms include the CSRF token.
+    csrf.init_app(app)
 
     # Initialize the JWT object
     jwt.init_app(app)
 
     # Initialize the mail object
     mail.init_app(app)
+
+    # Initialize the limiter object
+    limiter.init_app(app)
 
 
     # Import the blueprints
