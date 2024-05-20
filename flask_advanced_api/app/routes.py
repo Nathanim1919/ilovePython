@@ -11,6 +11,7 @@ from flask_jwt_extended import (
 )
 
 from werkzeug.security import generate_password_hash, check_password_hash
+from app.forms import RegistrationForm
 
 # Create the routes blueprint
 bp = Blueprint('routes', __name__)
@@ -23,16 +24,20 @@ def index():
 
 @bp.route('/register', methods=['POST'])
 def register():
-    data = request.get_json()
-    if not data or not data.get('username') or not data.get('password'):
-        return jsonify({'message': "Username and password are required"}), 400
-    
-    user = User(username=data['username'], email=data['email'])
-    user.set_password(data['password'])
-    user.role = data.get('role', 'user')
-    db.session.add(user)
-    db.session.commit()
-    return jsonify({'message': "User created successfully"}), 201
+    form = RegistrationForm(request.form)
+    if form.validate():
+        data = request.get_json()
+        if not data or not data.get('username') or not data.get('password'):
+            return jsonify({'message': "Username and password are required"}), 400
+        
+        user = User(username=data['username'], email=data['email'])
+        user.set_password(data['password'])
+        user.role = data.get('role', 'user')
+        db.session.add(user)
+        db.session.commit()
+        return jsonify({'message': "User created successfully"}), 201
+    else:
+        return jsonify({'message': "Invalid data"}), 400
 
 
 @bp.route('/login', methods=['POST'])
