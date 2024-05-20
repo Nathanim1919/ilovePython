@@ -7,7 +7,7 @@ from flask_mail import Message
 import pyotp
 from app.utils import role_required
 from flask_jwt_extended import (
-    jwt_required, create_access_token, get_jwt_identity,create_refresh_token
+    jwt_required, create_access_token, get_jwt_identity,create_refresh_token, unset_access_cookies
 )
 
 from werkzeug.security import generate_password_hash, check_password_hash
@@ -55,6 +55,14 @@ def login():
     access_token = create_access_token(identity={'username':user.username, 'role': user.role, 'id': user.id})
     refresh_token = create_refresh_token(identity={'username':user.username, 'role': user.role, 'id': user.id})
     return jsonify({'access_token': access_token, "refresh_token": refresh_token}), 200
+
+
+@bp.route('/logout', methods=['POST'])
+@jwt_required()
+def logout():
+    response = jsonify({'message': "User logged out successfully"})
+    unset_access_cookies(response)
+    return response, 200
 
 
 @bp.route('/refresh', methods=['POST'])
